@@ -66,3 +66,77 @@ def show_images(image_list, title, grayscale=False):
 show_images(detection_images_processed, "Detection Images (Resized & Normalized)")
 show_images(recognition_images_processed, "Recognition Images (Grayscale & Normalized)", grayscale=True)
 show_images(test_images_processed, "Test Images (Resized & Normalized)")
+
+import pandas as pd
+
+# Define file paths (update paths as needed)
+detection_annotations_path = r"C:\Users\Jayanth\Downloads\Licplatesdetection_train.csv"
+recognition_annotations_path = r"C:\Users\Jayanth\Downloads\Licplatesrecognition_train.csv"
+
+# Load the CSV files
+detection_df = pd.read_csv(detection_annotations_path)
+recognition_df = pd.read_csv(recognition_annotations_path)
+
+# Display first few rows of each dataset
+print("🔹 License Plate Detection Annotations:")
+print(detection_df.head())
+
+print("\n🔹 License Plate Recognition Annotations:")
+print(recognition_df.head())
+# output
+🔹 License Plate Detection Annotations:
+    img_id  ymin  xmin  ymax  xmax
+0    1.jpg   276    94   326   169
+1   10.jpg   311   395   344   444
+2  100.jpg   406   263   450   434
+3  101.jpg   283   363   315   494
+4  102.jpg   139    42   280   222
+
+🔹 License Plate Recognition Annotations:
+    img_id      text
+0    0.jpg  117T3989
+1    1.jpg  128T8086
+2   10.jpg   94T3458
+3  100.jpg  133T6719
+4  101.jpg   68T5979
+import cv2
+import matplotlib.pyplot as plt
+import pandas as pd
+import os
+
+# Define paths 
+image_folder = r"C:\Users\Jayanth\Downloads\Licplatesdetection_train\license_plates_detection_train"
+annotation_file = r"C:\Users\Jayanth\Downloads\Licplatesdetection_train.csv"
+
+# Load annotations
+detection_df = pd.read_csv(annotation_file)
+
+# Function to display an image with a bounding box
+def show_sample_image(image_name, bbox):
+    img_path = os.path.join(image_folder, image_name)
+    
+    # Read the image
+    img = cv2.imread(img_path)
+    if img is None:
+        print(f"❌ Image {image_name} not found!")
+        return
+    
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB for matplotlib
+
+    # Get bounding box coordinates
+    ymin, xmin, ymax, xmax = bbox
+
+    # Draw bounding box
+    cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (255, 0, 0), 3)  # Blue box
+
+    # Display image
+    plt.figure(figsize=(6, 6))
+    plt.imshow(img)
+    plt.title(f"License Plate: {image_name}")
+    plt.axis("off")
+    plt.show()
+
+# Show a few sample images with bounding boxes
+for i in range(3):  # Display 3 images
+    row = detection_df.iloc[i]
+    show_sample_image(row["img_id"], (row["ymin"], row["xmin"], row["ymax"], row["xmax"]))
